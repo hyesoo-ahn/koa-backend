@@ -35,3 +35,12 @@ export const findOne = async (_collection: string, _data: object) => {
 
   return insertResult;
 };
+
+export const updateOne = async (_collection: string, _id: any, _data: object) => {
+  const updateResult = await client
+    .db("database")
+    .collection(_collection)
+    .updateOne({ _id: _id }, { $set: { ..._data } });
+
+  return updateResult;
+};

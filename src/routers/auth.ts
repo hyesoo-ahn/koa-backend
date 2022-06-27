@@ -1,8 +1,9 @@
 import Router from "@koa/router";
 import { Context, DefaultContext } from "koa";
-import { client, findOne, insertOne } from "../database/mongoDB";
+import { client, findOne, insertOne, updateOne } from "../database/mongoDB";
 import { ObjectId } from "mongodb";
 import { createJwtToken, decodeJwtToken, hash, salt } from "../lib/auth";
+import { toToken } from "../lib/utils";
 
 const collection = client.db().collection("users");
 const router = new Router();
@@ -44,7 +45,7 @@ router.get("/signin", async (ctx: DefaultContext, next: any) => {
   }
 });
 
-// 토큰 검증
+// 토큰 검증 후 유저정보 가져오기
 router.get("/userinfo", async (ctx: DefaultContext, next: any) => {
   //   try {
   let bearerToken: string = ctx.request.headers.authorization.split(" ")[1];
@@ -59,5 +60,23 @@ router.get("/userinfo", async (ctx: DefaultContext, next: any) => {
     ctx.throw(400, decodeResult.message);
   }
 });
+
+// 유저 정보 변경
+router.put("/updateuser", async (ctx: DefaultContext, next: any) => {
+  let bearerToken: string = toToken(ctx);
+  const decodeResult: any = decodeJwtToken(bearerToken);
+
+  if (decodeResult._id) {
+    const _id = new ObjectId(decodeResult._id);
+    const updateuserInfoResult: any = await updateOne("users", _id, {
+      ...ctx.request.body,
+    });
+    if (updateuserInfoResult) ctx.body = updateuserInfoResult;
+  } else {
+    ctx.throw(400, "토큰이 유효하지 않습니다.");
+  }
+});
+
+// 유저 삭제
 
 export default router;
