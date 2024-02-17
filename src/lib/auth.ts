@@ -23,15 +23,31 @@ export const createJwtToken = (_id: string) => {
   return token;
 };
 
-export const decodeJwtToken = (_token: string) => {
-  try {
-    const _id: any = jwt.verify(_token, keyCredentials.secretKey, function (err, decoded) {
-      if (err) return err;
-      else return decoded;
-    });
+export const createJwtToken2 = (_id: string) => {
+  const token = jwt.sign(
+    {
+      _id: _id,
+    },
+    keyCredentials.secretKey
+  );
 
-    return _id;
-  } catch {
-    return false;
-  }
+  return token;
+};
+
+export const decodeJwtToken = (_token: string) => {
+  const decodeResult: any = jwt.verify(_token, keyCredentials.secretKey, (err, decoded) => {
+    if (err) {
+      return {
+        status: "error",
+        message: err.message,
+      };
+    } else {
+      return {
+        status: "ok",
+        decoded: decoded,
+      };
+    }
+  });
+
+  return decodeResult;
 };

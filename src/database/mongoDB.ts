@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 
 const MONGOID: any = "admin";
 const MONGOPASSWORD: any = process.env.MONGOPASSWORD ? process.env.MONGOPASSWORD : "password";
@@ -28,12 +28,16 @@ export const insertOne = async (_collection: string, _data: object) => {
 };
 
 export const findOne = async (_collection: string, _data: object) => {
-  const insertResult = await client
+  const findResult = await client
     .db("database")
     .collection(_collection)
     .findOne({ ..._data });
 
-  return insertResult;
+  if (findResult) {
+    return findResult;
+  } else {
+    return {};
+  }
 };
 
 export const updateOne = async (_collection: string, _id: any, _data: object) => {
@@ -43,4 +47,13 @@ export const updateOne = async (_collection: string, _id: any, _data: object) =>
     .updateOne({ _id: _id }, { $set: { ..._data } });
 
   return updateResult;
+};
+
+export const deleteOne = async (_collection: string, _id: string) => {
+  const deleteResult = await client
+    .db("database")
+    .collection(_collection)
+    .deleteOne({ _id: new ObjectId(`${_id}`) });
+
+  return deleteResult;
 };
